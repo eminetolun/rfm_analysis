@@ -1,11 +1,9 @@
 #importing packages
-
 import datetime as dt
 import pandas as pd
 
 
 #reading csv
-
 df = pd.read_excel("online_retail_II.xlsx", sheet_name= "Year 2010-2011")
 df.head()
 df.shape
@@ -16,7 +14,6 @@ df.isnull().sum()
 
 # Dropping NA values
 df.dropna(inplace = True)
-
 df.shape
 
 
@@ -30,9 +27,9 @@ df.head()
 
 
 df["InvoiceDate"].max()
+#  Timestamp('2011-12-09 12:50:00')
 
 today_date =dt.datetime(2011,12,11)
-#  Timestamp('2011-12-09 12:50:00')
 
 rfm = df.groupby("Customer ID").agg({ "InvoiceDate": lambda InvoiceDate:(today_date - InvoiceDate.max()).days,
                                 "Invoice": lambda Invoice: Invoice.nunique(),

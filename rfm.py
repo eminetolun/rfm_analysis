@@ -1,7 +1,10 @@
+#import packages
 
 import datetime as dt
 import pandas as pd
-#####GÖREV 1
+
+
+#read excel
 
 df = pd.read_excel("D:\Dekstop\pythonProject\online_retail_II.xlsx", sheet_name= "Year 2010-2011")
 df.head()
@@ -11,8 +14,6 @@ df.head()
 df.shape
 
 df.describe().T
-
-
 
 df.isnull().sum()
 df.dropna(inplace = True)

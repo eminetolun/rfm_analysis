@@ -1,51 +1,55 @@
-#import packages
+#importing packages
 
 import datetime as dt
 import pandas as pd
 
 
-#read excel
+#reading csv
 
-df = pd.read_excel("D:\Dekstop\pythonProject\online_retail_II.xlsx", sheet_name= "Year 2010-2011")
-df.head()
-df = df.copy()
-
+df = pd.read_excel("online_retail_II.xlsx", sheet_name= "Year 2010-2011")
 df.head()
 df.shape
 
-df.describe().T
 
+# Is there NA values ?
 df.isnull().sum()
+
+# Dropping NA values
 df.dropna(inplace = True)
+
 df.shape
-df["StockCode"].nunique()
 
-stockcodeCount = df.groupby("StockCode").agg({ "StockCode":  "count"})
-stockcodeCount.sort_values("StockCode", ascending=True)
 
+
+# Calculating total price
 df["TotalPrice"] = df["Quantity"] * df["Price"]
 
+# Dropping canceled and returned products
 df = df[~df["Invoice"].str.contains("C", na=False)]
 df.head()
 
-df["InvoiceDate"].max()
 
+df["InvoiceDate"].max()
 today_date =dt.datetime(2010,12,11)
+
 rfm = df.groupby("Customer ID").agg({ "InvoiceDate": lambda InvoiceDate:(today_date - InvoiceDate.max()).days,
                                 "Invoice": lambda Invoice: Invoice.nunique(),
                                 "TotalPrice": lambda TotalPrice: TotalPrice.sum()})
 
+
 rfm.columns = ["recency", "frequency", "monetary"]
+
+# Recency (R)  : Days since last purchase
+# Frequency (F) : Total number of purchases
+# Monetary (M) : Total money this customer spent
+
+
 rfm["recency_score"] = pd.qcut(rfm["recency"], 5, labels=[5,4,3,2,1])
 rfm["frequency_score"] = pd.qcut(rfm["frequency"].rank(method = "first"),5 ,labels=[1,2,3,4,5])
 rfm["monetary_score"] = pd.qcut(rfm["monetary"], 5, labels=[1,2,3,4,5])
 rfm.head()
 
 rfm["RFM_SCORE"] =  (rfm["recency_score"].astype(str) + rfm["frequency_score"].astype(str))
-
-
-rfm.describe().T
-rfm[rfm["RFM_SCORE"] == "55"].head()
 
 seg_map = {
     r'[1-2][1-2]': 'hibernating',
@@ -64,4 +68,3 @@ rfm["segment"] = rfm["RFM_SCORE"].replace(seg_map,regex = True)
 rfm = rfm[["recency", "frequency", "monetary", "segment"]]
 rfm.head()
 
-rfm_loyal =  rfm[rfm["segment"] == "loyal_customers"]
